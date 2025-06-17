@@ -21,6 +21,7 @@ def eprint(*args, **kwargs):
 
 AIPIPE_TOKEN = os.getenv("AIPIPE_TOKEN")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+PORT=os.getenv("PORT", 8000)
 MODEL_NAME = "BAAI/bge-base-en-v1.5"
 OPENROUTER_MODEL = "openai/gpt-4o-mini"
 GEMINI_MODEL = "gemini-1.5-flash"
@@ -195,4 +196,4 @@ async def process_query(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
