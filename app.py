@@ -12,8 +12,18 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 import uvicorn
 from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
 import os
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 load_dotenv()
 def eprint(*args, **kwargs):
