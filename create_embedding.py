@@ -7,7 +7,11 @@ from sentence_transformers import SentenceTransformer
 import torch
 # Initialize local embedding model
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model = SentenceTransformer("BAAI/bge-base-en-v1.5", device=device)
+model = SentenceTransformer("BAAI/bge-base-en-v1.5")
+if device == "cuda":
+    model = model.to("cuda")
+
+
 
 
 CHUNK_SIZE = 1000
@@ -44,6 +48,19 @@ def process_directory(directory):
         chunks = chunk_with_overlap(text)
         for i, chunk in enumerate(chunks):
             emb = get_embedding(chunk)
+            filename = os.path.basename(filepath)
+
+            if directory == "markdowns2":
+                file_id = filename.split("-")[0]
+                topic_slug = filename.split("-", 1)[1].replace(".md", "")
+                # Replace multiple consecutive hyphens with a single hyphen
+                topic_slug = "-".join(filter(None, topic_slug.split("-")))
+                print(topic_slug, file_id)
+                url = f"https://discourse.onlinedegree.iitm.ac.in/t/{topic_slug}/{file_id}"
+            else:
+                name_no_ext = os.path.splitext(filename)[0]
+                url = f"https://tds.s-anand.net/#/{name_no_ext}"
+
             if emb is not None:
                 vectors.append(emb)
                 metadata.append({
@@ -51,7 +68,9 @@ def process_directory(directory):
                     "filepath": filepath,
                     "chunk_id": i,
                     "text_preview": chunk[:100],
-                    "url": f"file://{os.path.abspath(filepath)}#chunk-{i}"
+                    "text": chunk,
+
+                    "url": url
                 })
 
 process_directory("markdowns2")

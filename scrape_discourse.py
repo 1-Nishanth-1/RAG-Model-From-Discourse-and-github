@@ -1,10 +1,12 @@
 import requests
 import time
 import json
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 BASE_URL = "https://discourse.onlinedegree.iitm.ac.in"
-EMAIL_OR_USERNAME = "23f2002133@ds.study.iitm.ac.in"
-PASSWORD = "214O@B230471cs"
+EMAIL_OR_USERNAME = load_dotenv().get("DISCOURSE_EMAIL_OR_USERNAME")
+PASSWORD = load_dotenv().get("DISCOURSE_PASSWORD")
 
 def login_discourse(base, login_val, password):
     sess = requests.Session()

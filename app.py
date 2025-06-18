@@ -76,7 +76,7 @@ async def process_query(request: Request):
                 
                 img = genai.upload_file(temp_path)
                 response = gemini_model.generate_content(
-                    ["Describe this image in detail, focusing on any text, diagrams, or technical content:", img],
+                    ["Explain the content of this image in the context of an academic discussion forum and extract text from the image. Focus on providing a concise and informative description that would help users understand the image's relevance to the discussion, do not include solution or anything that is not relevant to the image.", img],
                     request_options={"timeout": 60}
                 )
                 image_context = response.text.strip()
@@ -88,6 +88,7 @@ async def process_query(request: Request):
                     os.unlink(temp_path)
 
         full_query = question + (f"\n\n[Image Description]\n{image_context}" if image_context else "")
+        print(f"🔍 Full query: {full_query}")
 
         eprint("\n🔍 Generating embedding for combined query...")
         query_embedding = model.encode([full_query], normalize_embeddings=True)
@@ -103,18 +104,18 @@ async def process_query(request: Request):
         for idx in boosted_indices:
             item = metadata[idx]
             url = item.get("url", "")
-            context.append(f"{item['text_preview'].strip()}\n(Source: {url})")
+            context.append(f"{item['text'].strip()}\n(Source: {url})")
             added_urls.add(url)
 
         top_indices = sims.argsort()[::-1]  
         for idx in top_indices:
-            if len(context) >= 15:  
+            if len(context) >= 8:  
                 break
                 
             item = metadata[idx]
             url = item.get("url", "")
             if url and url not in added_urls:
-                context.append(f"{item['text_preview'].strip()}\n(Source: {url})")
+                context.append(f"{item['text'].strip()}\n(Source: {url})")
                 added_urls.add(url)
 
         
@@ -135,11 +136,12 @@ async def process_query(request: Request):
                         "properties": {
                             "answer": {"type": "string"},
                             "links": {
+                                "description": "A list of links to every relevant resources. Include every relevant source that was used to answer the question.",
                                 "type": "array",
                                 "items": {
                                     "type": "object",
                                     "properties": {
-                                        "url": {"description": "The https://discourse.onlinedegree.iitm.ac.in/ or s-anand.net source should be the url", "type": "string"},
+                                        "url": {"description": "The https://discourse.onlinedegree.iitm.ac.in/t/topic_slug/id (only till the id dont include the post url) or s-anand.net source should be the url", "type": "string"},
                                         "text": {"type": "string"}
                                     },
                                     "required": ["url", "text"]
@@ -169,7 +171,7 @@ async def process_query(request: Request):
                     {
                         "role": "user",
                         "content": f"Context:\n{'-'*50}\n" + '\n\n'.join(context) + 
-                                   f"\n{'-'*50}\nQuestion: {question}"
+                                   f"\n{'-'*50}\nQuestion: {full_query}"
                     }
                 ],
                 "tools": tools,
