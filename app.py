@@ -39,10 +39,10 @@ GEMINI_MODEL = "gemini-1.5-flash"
 print("📦 Loading embedding model and saved data...")
 
 
-embeddings = np.load("embeddings2.npz", mmap_mode="r")["vectors"]
+embeddings = np.load("embeddings3.npz", mmap_mode="r")["vectors"]
 
 
-with open("metadata2.json", "r", encoding="utf-8") as f:
+with open("metadata3.json", "r", encoding="utf-8") as f:
     metadata = json.load(f)
 
 model = SentenceTransformer(MODEL_NAME)
@@ -139,7 +139,7 @@ async def process_query(request: Request):
                         "properties": {
                             "answer": {"type": "string"},
                             "links": {
-                                "description": "A list of links to every relevant resources. Include every relevant source that was used to answer the question.",
+                                "description": "A list of links to every relevant resources. Try to include as many sources as possible.",
                                 "type": "array",
                                 "items": {
                                     "type": "object",
