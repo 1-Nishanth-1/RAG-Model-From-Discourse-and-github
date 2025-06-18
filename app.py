@@ -45,6 +45,7 @@ embeddings = np.load("embeddings2.npz", mmap_mode="r")["vectors"]
 with open("metadata2.json", "r", encoding="utf-8") as f:
     metadata = json.load(f)
 
+model = SentenceTransformer(MODEL_NAME)
 
 @app.post("/api/")
 async def process_query(request: Request):
@@ -92,7 +93,7 @@ async def process_query(request: Request):
         print(f"🔍 Full query: {full_query}")
 
         eprint("\n🔍 Generating embedding for combined query...")
-        model = SentenceTransformer(MODEL_NAME)
+        
         query_embedding = model.encode([full_query], normalize_embeddings=True)
 
         boosted_indices = set()
