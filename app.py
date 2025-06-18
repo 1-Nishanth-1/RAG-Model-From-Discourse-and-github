@@ -37,15 +37,14 @@ OPENROUTER_MODEL = "openai/gpt-4o-mini"
 GEMINI_MODEL = "gemini-1.5-flash"
 
 print("📦 Loading embedding model and saved data...")
-model = SentenceTransformer(MODEL_NAME)
-embeddings = np.load("embeddings2.npz")["vectors"]
+
+
+embeddings = np.load("embeddings2.npz", mmap_mode="r")["vectors"]
+
 
 with open("metadata2.json", "r", encoding="utf-8") as f:
     metadata = json.load(f)
 
-print("🔑 Configuring Gemini...")
-genai.configure(api_key=GEMINI_API_KEY)
-gemini_model = genai.GenerativeModel(GEMINI_MODEL)
 
 @app.post("/api/")
 async def process_query(request: Request):
@@ -61,6 +60,8 @@ async def process_query(request: Request):
         temp_path = None
         
         if image_b64:
+            genai.configure(api_key=GEMINI_API_KEY)
+            gemini_model = genai.GenerativeModel(GEMINI_MODEL)
             eprint("🖼️ Processing base64 image...")
             try:
                 if image_b64.startswith("data:"):
@@ -91,6 +92,7 @@ async def process_query(request: Request):
         print(f"🔍 Full query: {full_query}")
 
         eprint("\n🔍 Generating embedding for combined query...")
+        model = SentenceTransformer(MODEL_NAME)
         query_embedding = model.encode([full_query], normalize_embeddings=True)
 
         boosted_indices = set()
@@ -141,7 +143,7 @@ async def process_query(request: Request):
                                 "items": {
                                     "type": "object",
                                     "properties": {
-                                        "url": {"description": "The https://discourse.onlinedegree.iitm.ac.in/t/topic_slug/id (only till the id dont include the post url) or s-anand.net source should be the url", "type": "string"},
+                                        "url": {"description": "The https://discourse.onlinedegree.iitm.ac.in/t/topic_slug/id (only till /id NOT MORE) or s-anand.net source should be the url", "type": "string"},
                                         "text": {"type": "string"}
                                     },
                                     "required": ["url", "text"]
@@ -189,6 +191,9 @@ async def process_query(request: Request):
         fn_call = response_data["choices"][0]["message"]["tool_calls"][0]
         args = json.loads(fn_call["function"]["arguments"])
         
+        import gc
+        gc.collect()
+
         output = {
             "answer": args.get("answer", ""),
             "links": []
