@@ -31,7 +31,7 @@ def eprint(*args, **kwargs):
 
 AIPIPE_TOKEN = os.getenv("AIPIPE_TOKEN")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-PORT=os.getenv("PORT", 8000)
+PORT=os.getenv("PORT", 7860)
 MODEL_NAME = "BAAI/bge-base-en-v1.5"
 OPENROUTER_MODEL = "openai/gpt-4o-mini"
 GEMINI_MODEL = "gemini-1.5-flash"
@@ -39,10 +39,10 @@ GEMINI_MODEL = "gemini-1.5-flash"
 print("📦 Loading embedding model and saved data...")
 
 
-embeddings = np.load("embeddings3.npz", mmap_mode="r")["vectors"]
+embeddings = np.load("embeddings2.npz", mmap_mode="r")["vectors"]
 
 
-with open("metadata3.json", "r", encoding="utf-8") as f:
+with open("metadata2.json", "r", encoding="utf-8") as f:
     metadata = json.load(f)
 
 model = SentenceTransformer(MODEL_NAME)

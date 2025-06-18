@@ -1,0 +1,24 @@
+# Virtual environments
+.venv/
+env/
+__pycache__/
+*.pyc
+
+# Local config/secrets
+.env
+*.env
+
+# Git files
+.git/
+.gitignore
+
+# OS & editor files
+.DS_Store
+*.swp
+*.swo
+*.bak
+
+# Cache
+*.log
+*.cache
+__pycache__/
