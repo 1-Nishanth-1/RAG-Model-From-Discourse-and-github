@@ -1,0 +1,31 @@
+# Use a lightweight Python base image
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies for image handling and SentenceTransformer
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    ffmpeg \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libgl1-mesa-glx \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy dependency list and install Python packages
+COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+# Copy app code and data files
+COPY app.py .
+COPY embeddings2.npz .
+COPY metadata2.json .
+
+# Set default port expected by Hugging Face
+ENV PORT=7860
+
+# Run the FastAPI app with Uvicorn
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
